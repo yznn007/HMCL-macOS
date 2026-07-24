@@ -11,6 +11,8 @@ cask "hmcl-macos" do
 
   zap trash: [
     "~/.hmcl",
+    "~/Library/Application Support/HMCL",
     "~/Library/Application Support/hmcl",
+    "~/Library/Logs/HMCL-macOS",
   ]
 end

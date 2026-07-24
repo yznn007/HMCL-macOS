@@ -118,16 +118,28 @@ set -e
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 HMCL_JAR="$APP_DIR/Resources/HMCL.jar"
 JAVA_OPTS="-Xmx2G -XX:+UseG1GC"
-LOG_DIR="$HOME/.hmcl"
-LOG_FILE="$LOG_DIR/hmcl-app-launcher.log"
+USER_HOME="${HOME:-}"
 
-mkdir -p "$LOG_DIR"
-exec >>"$LOG_FILE" 2>&1
-echo "[$(/bin/date '+%Y-%m-%d %H:%M:%S')] Starting HMCL.app"
+if [ -z "$USER_HOME" ] && [ -n "${USER:-}" ]; then
+  USER_HOME="$(/usr/bin/dscl . -read "/Users/$USER" NFSHomeDirectory 2>/dev/null | /usr/bin/awk '{print $2}' || true)"
+fi
+
+APP_SUPPORT_DIR="$USER_HOME/Library/Application Support/HMCL"
+LOG_DIR="$USER_HOME/Library/Logs/HMCL-macOS"
+LOG_FILE="$LOG_DIR/hmcl-app-launcher.log"
 
 show_error() {
   /usr/bin/osascript -e "display dialog \"$1\" buttons {\"OK\"} default button \"OK\" with icon stop" >/dev/null 2>&1 || true
 }
+
+if [ -z "$USER_HOME" ] || [ ! -d "$USER_HOME" ]; then
+  show_error "The current user home directory could not be resolved."
+  exit 1
+fi
+
+mkdir -p "$APP_SUPPORT_DIR" "$LOG_DIR"
+exec >>"$LOG_FILE" 2>&1
+echo "[$(/bin/date '+%Y-%m-%d %H:%M:%S')] Starting HMCL.app"
 
 if [ ! -f "$HMCL_JAR" ]; then
   show_error "HMCL.jar was not found inside the application bundle."
@@ -147,7 +159,12 @@ if [ -z "$JAVA" ] || [ ! -x "$JAVA" ]; then
   exit 1
 fi
 
-exec "$JAVA" $JAVA_OPTS -jar "$HMCL_JAR"
+cd "$USER_HOME"
+exec "$JAVA" $JAVA_OPTS \
+  -Duser.home="$USER_HOME" \
+  -Dhmcl.dir="$APP_SUPPORT_DIR" \
+  -Dhmcl.home="$APP_SUPPORT_DIR" \
+  -jar "$HMCL_JAR"
 LAUNCHER
 
 chmod +x "$MACOS/$APP_NAME"

@@ -33,6 +33,7 @@ HMCL-macOS 会将 HMCL 官方 `.jar` 文件封装成标准 macOS `.app`，再打
 - 为应用包加入 HMCL 官方 macOS 图标。
 - 将 HMCL 固定存放为应用包内的 `Contents/Resources/HMCL.jar`。
 - 在应用包内记录上游版本和目标架构。
+- 将 HMCL 运行数据存放在 `~/Library/Application Support/HMCL`。
 - 将应用包打包成带 `Applications` 快捷入口的 `.dmg`。
 - 使用 GitHub Actions 发布上游最新非 prerelease 构建。
 
@@ -54,7 +55,7 @@ HMCL.app
 启动器日志会写入：
 
 ```text
-~/.hmcl/hmcl-app-launcher.log
+~/Library/Logs/HMCL-macOS/hmcl-app-launcher.log
 ```
 
 ## 本地构建
