@@ -1,0 +1,20 @@
+# Build output
+dist/
+downloads/
+release/
+verify-downloads/
+*.dmg
+*.app/
+
+# HMCL binary artifacts
+*.jar
+
+# Local personal launch scripts
+script/
+
+# Local crash/export files
+*.zip
+*.log
+
+# macOS
+.DS_Store

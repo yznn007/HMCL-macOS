@@ -1,0 +1,121 @@
+name: Build HMCL macOS releases
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "20 3 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.channel }} HMCL.app
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        channel: [stable, dev, old]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build ${{ matrix.channel }} dmg assets
+        id: hmcl
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          for arch in aarch64 x64; do
+            output_dir="dist/${{ matrix.channel }}/$arch"
+            ./scripts/build-channel-dmg.sh \
+              --channel "${{ matrix.channel }}" \
+              --arch "$arch" \
+              --output-dir "$output_dir" \
+              --download-dir "downloads/${{ matrix.channel }}/$arch"
+          done
+
+          tag="$(cat "dist/${{ matrix.channel }}/aarch64/HMCL.app/Contents/Resources/HMCL.version")"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "channel=${{ matrix.channel }}" >> "$GITHUB_OUTPUT"
+          {
+            echo "dmgs<<EOF"
+            find "dist/${{ matrix.channel }}" -type f -name 'HMCL-macOS-*.dmg' | sort
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload dmg artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HMCL-macOS-${{ matrix.channel }}-${{ steps.hmcl.outputs.tag }}
+          path: dist/${{ matrix.channel }}/*/HMCL-macOS-*.dmg
+          if-no-files-found: error
+
+      - name: Check release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: hmcl-macos-${{ matrix.channel }}-${{ steps.hmcl.outputs.tag }}
+        run: |
+          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Write release notes
+        if: steps.release.outputs.exists == 'false'
+        run: |
+          cat > release-notes.md <<'NOTES'
+          This release packages the official ${{ matrix.channel }} HMCL jar as macOS `.app` bundles inside `.dmg` installer images.
+
+          Install:
+
+          1. Download the `.dmg`.
+          2. Open it.
+          3. Drag `HMCL.app` into `Applications`.
+
+          Notes:
+
+          - HMCL itself is provided by the upstream HMCL project.
+          - Channel: ${{ matrix.channel }}
+          - Architectures: aarch64, x64
+          - Download source: upstream HMCL GitHub Releases.
+          - This repository only automates macOS App Bundle packaging.
+          - HMCL is licensed under GPLv3 with upstream additional terms. Please see the upstream repository and license before redistributing.
+
+          Upstream: https://github.com/HMCL-dev/HMCL
+          NOTES
+
+      - name: Publish GitHub release
+        if: steps.release.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prerelease_arg=""
+          latest_arg="--latest"
+          if [ "${{ matrix.channel }}" != "stable" ]; then
+            prerelease_arg="--prerelease"
+            latest_arg="--latest=false"
+          fi
+
+          gh release create "${{ steps.release.outputs.tag }}" \
+            dist/${{ matrix.channel }}/*/HMCL-macOS-*.dmg \
+            --title "HMCL macOS ${{ matrix.channel }} ${{ steps.hmcl.outputs.tag }}" \
+            --notes-file release-notes.md \
+            $prerelease_arg \
+            $latest_arg
+
+      - name: Upload assets to existing release
+        if: steps.release.outputs.exists == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ steps.release.outputs.tag }}" \
+            dist/${{ matrix.channel }}/*/HMCL-macOS-*.dmg \
+            --clobber
+
+          if [ "${{ matrix.channel }}" = "stable" ]; then
+            gh release edit "${{ steps.release.outputs.tag }}" --latest
+          fi
