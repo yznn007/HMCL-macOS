@@ -8,12 +8,11 @@ HMCL-macOS packages the official HMCL `.jar` files into a standard macOS `.app`,
 
 ## Downloads
 
-Releases are built from upstream HMCL GitHub Releases and use the same version tags as upstream:
+Releases are built from the latest upstream HMCL non-prerelease GitHub Release and use the same version tag as upstream:
 
 | Upstream release type | Output | GitHub Release type |
 | --- | --- | --- |
 | non-prerelease | `HMCL-macOS-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-x64-vX.Y.Z.dmg` | Release |
-| prerelease | `HMCL-macOS-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-x64-vX.Y.Z.dmg` | Prerelease |
 
 Download the appropriate `.dmg` from this repository's Releases page.
 
@@ -33,9 +32,9 @@ If macOS blocks the app because it is unsigned, open it from Finder with Control
 - Creates a standard `HMCL.app` bundle.
 - Adds the official HMCL macOS icon to the app bundle.
 - Stores HMCL as `Contents/Resources/HMCL.jar` inside the app.
-- Records the upstream version, channel, and target architecture in the app bundle.
+- Records the upstream version and target architecture in the app bundle.
 - Packages the app as a `.dmg` with an `Applications` shortcut.
-- Publishes `stable` and `dev` channel builds with GitHub Actions.
+- Publishes the latest upstream non-prerelease build with GitHub Actions.
 
 ## App Bundle Layout
 
@@ -48,7 +47,6 @@ HMCL.app
     └── Resources
         ├── HMCL.jar
         ├── HMCL.version
-        ├── HMCL.channel
         ├── HMCL.arch
         └── AppIcon.icns
 ```
@@ -61,12 +59,11 @@ Launcher logs are written to:
 
 ## Build Locally
 
-Build a DMG for a specific packaging channel:
+Build a DMG for the latest upstream non-prerelease release:
 
 ```bash
 ./scripts/build-channel-dmg.sh --channel stable --arch aarch64
 ./scripts/build-channel-dmg.sh --channel stable --arch x64
-./scripts/build-channel-dmg.sh --channel dev --arch aarch64
 ```
 
 The output is written to `dist/`:
@@ -112,14 +109,13 @@ The release workflow is defined in:
 .github/workflows/build-releases.yml
 ```
 
-It runs on a schedule and can also be triggered manually. The workflow builds a matrix of packaging channels and macOS architectures:
+It runs on a schedule and can also be triggered manually. The workflow builds the latest upstream non-prerelease release for macOS architectures:
 
 ```text
-stable, dev
 aarch64, x64
 ```
 
-For each upstream release type, it downloads the upstream GitHub release jar, verifies the checksum published in release notes when available, builds both architecture-specific `HMCL.app` bundles, creates `.dmg` assets, uploads the artifacts, and then either creates the matching version GitHub Release or uploads the current DMG assets to the existing release. Every run explicitly syncs the GitHub Release state: upstream non-prerelease builds are normal releases and become Latest; upstream prerelease builds are prereleases and are kept out of Latest.
+For the latest upstream non-prerelease release, it downloads the upstream GitHub release jar, verifies the checksum published in release notes when available, builds both architecture-specific `HMCL.app` bundles, creates `.dmg` assets, uploads the artifacts, and then either creates the matching version GitHub Release or uploads the current DMG assets to the existing release. Every run explicitly syncs the GitHub Release state as a normal release and marks it as Latest.
 
 Release tags use the upstream HMCL tag directly. Architecture is not part of the release tag; each release contains all architecture-specific DMG assets for that version.
 
@@ -131,7 +127,6 @@ Examples:
 
 ```text
 v3.15.2
-v3.17.0.351
 ```
 
 Each release contains separate assets such as:
@@ -147,11 +142,10 @@ HMCL itself is Java-based. The architecture split is a distribution and metadata
 
 This project follows HMCL's upstream GitHub Releases instead of the website download API.
 
-Channel mapping:
+Selection rule:
 
 ```text
-stable -> latest non-prerelease GitHub Release
-dev    -> latest prerelease GitHub Release
+latest upstream non-prerelease GitHub Release
 ```
 
 See [UPSTREAM.md](UPSTREAM.md) for details.
@@ -184,7 +178,7 @@ Helper script:
 
 ## Homebrew Cask
 
-A starter Homebrew Cask is provided for the stable channel:
+A starter Homebrew Cask is provided for the latest upstream non-prerelease build:
 
 ```text
 packaging/homebrew/Casks/hmcl-macos.rb
@@ -210,10 +204,10 @@ scripts/
 └── sign-and-notarize.sh
 ```
 
-- `download-hmcl-channel.sh`: downloads one packaging channel from upstream GitHub Releases and verifies SHA-256 when available.
+- `download-hmcl-channel.sh`: downloads the latest upstream non-prerelease HMCL release and verifies SHA-256 when available.
 - `build-hmcl-app.sh`: creates `HMCL.app` from a jar.
 - `create-dmg.sh`: creates the drag-and-drop DMG.
-- `build-channel-dmg.sh`: runs the full channel build pipeline.
+- `build-channel-dmg.sh`: runs the full non-prerelease build pipeline.
 - `create-official-icon.sh`: regenerates `assets/icons/AppIcon.icns` from the official upstream icon source.
 - `sign-and-notarize.sh`: signs an app and optionally notarizes/staples a DMG.
 

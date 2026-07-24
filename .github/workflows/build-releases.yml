@@ -10,37 +10,32 @@ permissions:
 
 jobs:
   build:
-    name: Build ${{ matrix.channel }} HMCL.app
+    name: Build latest HMCL.app
     runs-on: macos-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        channel: [stable, dev]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build ${{ matrix.channel }} dmg assets
+      - name: Build dmg assets
         id: hmcl
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           for arch in aarch64 x64; do
-            output_dir="dist/${{ matrix.channel }}/$arch"
+            output_dir="dist/stable/$arch"
             ./scripts/build-channel-dmg.sh \
-              --channel "${{ matrix.channel }}" \
+              --channel stable \
               --arch "$arch" \
               --output-dir "$output_dir" \
-              --download-dir "downloads/${{ matrix.channel }}/$arch"
+              --download-dir "downloads/stable/$arch"
           done
 
-          tag="$(cat "dist/${{ matrix.channel }}/aarch64/HMCL.app/Contents/Resources/HMCL.version")"
+          tag="$(cat "dist/stable/aarch64/HMCL.app/Contents/Resources/HMCL.version")"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "channel=${{ matrix.channel }}" >> "$GITHUB_OUTPUT"
           {
             echo "dmgs<<EOF"
-            find "dist/${{ matrix.channel }}" -type f -name 'HMCL-macOS-*.dmg' | sort
+            find "dist/stable" -type f -name 'HMCL-macOS-*.dmg' | sort
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -48,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: HMCL-macOS-${{ steps.hmcl.outputs.tag }}
-          path: dist/${{ matrix.channel }}/*/HMCL-macOS-*.dmg
+          path: dist/stable/*/HMCL-macOS-*.dmg
           if-no-files-found: error
 
       - name: Check release
@@ -79,7 +74,7 @@ jobs:
           Notes:
 
           - HMCL itself is provided by the upstream HMCL project.
-          - Upstream release type: ${{ matrix.channel }}
+          - Upstream release type: non-prerelease
           - Architectures: aarch64, x64
           - Download source: upstream HMCL GitHub Releases.
           - This repository only automates macOS App Bundle packaging.
@@ -93,19 +88,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          prerelease_arg=""
-          latest_arg="--latest"
-          if [ "${{ matrix.channel }}" != "stable" ]; then
-            prerelease_arg="--prerelease"
-            latest_arg="--latest=false"
-          fi
-
           gh release create "${{ steps.release.outputs.tag }}" \
-            dist/${{ matrix.channel }}/*/HMCL-macOS-*.dmg \
+            dist/stable/*/HMCL-macOS-*.dmg \
             --title "HMCL macOS ${{ steps.hmcl.outputs.tag }}" \
             --notes-file release-notes.md \
-            $prerelease_arg \
-            $latest_arg
+            --latest
 
       - name: Upload assets to existing release
         if: steps.release.outputs.exists == 'true'
@@ -113,7 +100,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload "${{ steps.release.outputs.tag }}" \
-            dist/${{ matrix.channel }}/*/HMCL-macOS-*.dmg \
+            dist/stable/*/HMCL-macOS-*.dmg \
             --clobber
 
       - name: Sync GitHub release state
@@ -124,14 +111,7 @@ jobs:
             "repos/${{ github.repository }}/releases/tags/${{ steps.release.outputs.tag }}" \
             --jq '.id')"
 
-          if [ "${{ matrix.channel }}" = "stable" ]; then
-            gh api -X PATCH "repos/${{ github.repository }}/releases/$release_id" \
-              -F prerelease=false \
-              -f make_latest=true \
-              --silent
-          else
-            gh api -X PATCH "repos/${{ github.repository }}/releases/$release_id" \
-              -F prerelease=true \
-              -f make_latest=false \
-              --silent
-          fi
+          gh api -X PATCH "repos/${{ github.repository }}/releases/$release_id" \
+            -F prerelease=false \
+            -f make_latest=true \
+            --silent

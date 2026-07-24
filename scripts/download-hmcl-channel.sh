@@ -8,7 +8,7 @@ REPO="HMCL-dev/HMCL"
 API_ROOT="https://api.github.com"
 
 usage() {
-  printf 'Usage: %s [--channel stable|dev] [--output-dir DIR] [--repo OWNER/REPO]\n' "$0"
+  printf 'Usage: %s [--channel stable] [--output-dir DIR] [--repo OWNER/REPO]\n' "$0"
 }
 
 while [ "$#" -gt 0 ]; do
@@ -50,7 +50,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 case "$CHANNEL" in
-  stable|dev)
+  stable)
     ;;
   *)
     printf 'Error: unsupported channel: %s\n' "$CHANNEL" >&2
@@ -151,8 +151,6 @@ def release_matches(release, channel):
     prerelease = bool(release.get("prerelease"))
     if channel == "stable":
         return not prerelease
-    if channel == "dev":
-        return prerelease
     return False
 
 def find_jar_asset(release):

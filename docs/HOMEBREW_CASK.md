@@ -22,12 +22,11 @@ Before publishing a tap:
 
 ## Stable Channel
 
-The included cask targets the `stable` channel and the Apple Silicon (`aarch64`) artifact. `dev` builds are prereleases in this repository and should generally be exposed through a separate cask only if you intentionally want Homebrew users to install them.
+The included cask targets the latest upstream non-prerelease build and the Apple Silicon (`aarch64`) artifact.
 
 Example names:
 
 ```text
 hmcl-macos
 hmcl-macos-intel
-hmcl-macos-dev
 ```

@@ -8,12 +8,11 @@ HMCL-macOS 会将 HMCL 官方 `.jar` 文件封装成标准 macOS `.app`，再打
 
 ## 下载
 
-发布产物来自上游 HMCL GitHub Releases，并使用与上游一致的版本 tag：
+发布产物来自上游 HMCL 最新的非 prerelease GitHub Release，并使用与上游一致的版本 tag：
 
 | 上游 Release 类型 | 产物 | GitHub Release 类型 |
 | --- | --- | --- |
 | 非 prerelease | `HMCL-macOS-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-x64-vX.Y.Z.dmg` | 正式 Release |
-| prerelease | `HMCL-macOS-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-x64-vX.Y.Z.dmg` | Prerelease |
 
 请在本仓库的 Releases 页面下载需要的 `.dmg`。
 
@@ -33,9 +32,9 @@ HMCL-macOS 会将 HMCL 官方 `.jar` 文件封装成标准 macOS `.app`，再打
 - 创建标准 `HMCL.app` 应用包。
 - 为应用包加入 HMCL 官方 macOS 图标。
 - 将 HMCL 固定存放为应用包内的 `Contents/Resources/HMCL.jar`。
-- 在应用包内记录上游版本、打包通道和目标架构。
+- 在应用包内记录上游版本和目标架构。
 - 将应用包打包成带 `Applications` 快捷入口的 `.dmg`。
-- 使用 GitHub Actions 发布 `stable` 和 `dev` 两个打包通道构建。
+- 使用 GitHub Actions 发布上游最新非 prerelease 构建。
 
 ## App Bundle 结构
 
@@ -48,7 +47,6 @@ HMCL.app
     └── Resources
         ├── HMCL.jar
         ├── HMCL.version
-        ├── HMCL.channel
         ├── HMCL.arch
         └── AppIcon.icns
 ```
@@ -61,12 +59,11 @@ HMCL.app
 
 ## 本地构建
 
-为指定打包通道构建 DMG：
+为上游最新非 prerelease 构建 DMG：
 
 ```bash
 ./scripts/build-channel-dmg.sh --channel stable --arch aarch64
 ./scripts/build-channel-dmg.sh --channel stable --arch x64
-./scripts/build-channel-dmg.sh --channel dev --arch aarch64
 ```
 
 产物会输出到 `dist/`：
@@ -112,14 +109,13 @@ assets/icons/AppIcon.icns
 .github/workflows/build-releases.yml
 ```
 
-它会定时运行，也可以手动触发。工作流使用 matrix 构建打包通道和 macOS 架构：
+它会定时运行，也可以手动触发。工作流会为上游最新非 prerelease 版本构建 macOS 架构产物：
 
 ```text
-stable, dev
 aarch64, x64
 ```
 
-每种上游 Release 类型都会从上游 GitHub Releases 下载 jar，在 release notes 提供 SHA-256 时进行校验，分别构建各架构的 `HMCL.app`、生成 `.dmg`、上传 artifact，然后在对应版本尚未发布时创建 GitHub Release；如果 Release 已存在，则把当前 DMG 资产上传并覆盖到该 Release。每次运行都会显式同步 GitHub Release 状态：上游非 prerelease 构建会作为普通 Release 并成为 Latest；上游 prerelease 构建会作为 Prerelease，并且不会成为 Latest。
+对于上游最新非 prerelease 版本，工作流会从上游 GitHub Releases 下载 jar，在 release notes 提供 SHA-256 时进行校验，分别构建各架构的 `HMCL.app`、生成 `.dmg`、上传 artifact，然后在对应版本尚未发布时创建 GitHub Release；如果 Release 已存在，则把当前 DMG 资产上传并覆盖到该 Release。每次运行都会显式同步 GitHub Release 状态为普通 Release，并将其标记为 Latest。
 
 Release tag 直接使用上游 HMCL tag。架构不写入 Release tag；同一个版本的 Release 中会包含所有架构对应的 DMG 资产。
 
@@ -131,7 +127,6 @@ Release tag 直接使用上游 HMCL tag。架构不写入 Release tag；同一�
 
 ```text
 v3.15.2
-v3.17.0.351
 ```
 
 每个 Release 中会包含类似这样的架构资产：
@@ -147,11 +142,10 @@ HMCL 本体基于 Java。这里的架构拆分主要是面向 macOS 用户的分
 
 本项目以上游 HMCL GitHub Releases 为准，而不是使用官网下载 API。
 
-通道映射：
+选择规则：
 
 ```text
-stable -> 最新的非 prerelease GitHub Release
-dev    -> 最新的 prerelease GitHub Release
+上游最新的非 prerelease GitHub Release
 ```
 
 详见 [UPSTREAM.md](UPSTREAM.md)。
@@ -184,7 +178,7 @@ docs/SIGNING_AND_NOTARIZATION.md
 
 ## Homebrew Cask
 
-仓库提供了稳定版通道的 Homebrew Cask 模板：
+仓库提供了上游最新非 prerelease 构建的 Homebrew Cask 模板：
 
 ```text
 packaging/homebrew/Casks/hmcl-macos.rb
@@ -210,10 +204,10 @@ scripts/
 └── sign-and-notarize.sh
 ```
 
-- `download-hmcl-channel.sh`：从上游 GitHub Releases 下载指定打包通道，并在可用时校验 SHA-256。
+- `download-hmcl-channel.sh`：从上游 GitHub Releases 下载最新非 prerelease HMCL 版本，并在可用时校验 SHA-256。
 - `build-hmcl-app.sh`：从 jar 创建 `HMCL.app`。
 - `create-dmg.sh`：创建可拖拽安装的 DMG。
-- `build-channel-dmg.sh`：运行完整通道构建流程。
+- `build-channel-dmg.sh`：运行完整非 prerelease 构建流程。
 - `create-official-icon.sh`：从上游官方图标源重新生成 `assets/icons/AppIcon.icns`。
 - `sign-and-notarize.sh`：签名应用，并可选择提交 notarization 和 staple。
 
