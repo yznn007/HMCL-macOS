@@ -82,4 +82,4 @@ fi
 "./scripts/build-hmcl-app.sh" "$HMCL_JAR" --version "$HMCL_TAG" --arch "$ARCH" --output-dir "$OUTPUT_DIR"
 printf '%s\n' "$HMCL_CHANNEL" > "$OUTPUT_DIR/HMCL.app/Contents/Resources/HMCL.channel"
 printf '%s\n' "$ARCH" > "$OUTPUT_DIR/HMCL.app/Contents/Resources/HMCL.arch"
-"./scripts/create-dmg.sh" --app "$OUTPUT_DIR/HMCL.app" --version "$HMCL_CHANNEL-$ARCH-$HMCL_TAG" --output-dir "$OUTPUT_DIR"
+"./scripts/create-dmg.sh" --app "$OUTPUT_DIR/HMCL.app" --version "$ARCH-$HMCL_TAG" --output-dir "$OUTPUT_DIR"

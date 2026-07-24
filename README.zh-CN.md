@@ -8,12 +8,12 @@ HMCL-macOS 会将 HMCL 官方 `.jar` 文件封装成标准 macOS `.app`，再打
 
 ## 下载
 
-发布产物来自上游 HMCL GitHub Releases，并按打包通道分组：
+发布产物来自上游 HMCL GitHub Releases，并使用与上游一致的版本 tag：
 
-| 通道 | 产物 | GitHub Release 类型 |
+| 上游 Release 类型 | 产物 | GitHub Release 类型 |
 | --- | --- | --- |
-| `stable` | `HMCL-macOS-stable-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-stable-x64-vX.Y.Z.dmg` | 正式 Release |
-| `dev` | `HMCL-macOS-dev-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-dev-x64-vX.Y.Z.dmg` | Prerelease |
+| 非 prerelease | `HMCL-macOS-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-x64-vX.Y.Z.dmg` | 正式 Release |
+| prerelease | `HMCL-macOS-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-x64-vX.Y.Z.dmg` | Prerelease |
 
 请在本仓库的 Releases 页面下载需要的 `.dmg`。
 
@@ -72,7 +72,7 @@ HMCL.app
 产物会输出到 `dist/`：
 
 ```text
-dist/HMCL-macOS-<channel>-<arch>-<tag>.dmg
+dist/HMCL-macOS-<arch>-<tag>.dmg
 ```
 
 也可以分步执行：
@@ -80,7 +80,7 @@ dist/HMCL-macOS-<channel>-<arch>-<tag>.dmg
 ```bash
 ./scripts/download-hmcl-channel.sh --channel stable --output-dir downloads/stable/aarch64
 ./scripts/build-hmcl-app.sh downloads/stable/aarch64/HMCL-*.jar --version vX.Y.Z --arch aarch64 --output-dir dist/stable/aarch64
-./scripts/create-dmg.sh --app dist/stable/aarch64/HMCL.app --version stable-aarch64-vX.Y.Z --output-dir dist/stable/aarch64
+./scripts/create-dmg.sh --app dist/stable/aarch64/HMCL.app --version aarch64-vX.Y.Z --output-dir dist/stable/aarch64
 ```
 
 ## 图标
@@ -119,26 +119,26 @@ stable, dev
 aarch64, x64
 ```
 
-每个通道都会从上游 GitHub Releases 下载 jar，在 release notes 提供 SHA-256 时进行校验，分别构建各架构的 `HMCL.app`、生成 `.dmg`、上传 artifact，然后在对应通道和版本尚未发布时创建 GitHub Release；如果 Release 已存在，则把当前 DMG 资产上传并覆盖到该 Release。稳定版会被明确标记为 GitHub Latest Release；开发版会作为 prerelease 发布，不会成为 latest。
+每种上游 Release 类型都会从上游 GitHub Releases 下载 jar，在 release notes 提供 SHA-256 时进行校验，分别构建各架构的 `HMCL.app`、生成 `.dmg`、上传 artifact，然后在对应版本尚未发布时创建 GitHub Release；如果 Release 已存在，则把当前 DMG 资产上传并覆盖到该 Release。非 prerelease 构建会被明确标记为 GitHub Latest Release；prerelease 构建会作为 GitHub prerelease 发布，不会成为 latest。
 
-Release tag 格式如下。架构不写入 Release tag；同一个通道和版本的 Release 中会包含所有架构对应的 DMG 资产。
+Release tag 直接使用上游 HMCL tag。架构不写入 Release tag；同一个版本的 Release 中会包含所有架构对应的 DMG 资产。
 
 ```text
-hmcl-macos-<channel>-<tag>
+<tag>
 ```
 
 示例：
 
 ```text
-hmcl-macos-stable-v3.15.2
-hmcl-macos-dev-v3.17.0.351
+v3.15.2
+v3.17.0.351
 ```
 
 每个 Release 中会包含类似这样的架构资产：
 
 ```text
-HMCL-macOS-stable-aarch64-v3.15.2.dmg
-HMCL-macOS-stable-x64-v3.15.2.dmg
+HMCL-macOS-aarch64-v3.15.2.dmg
+HMCL-macOS-x64-v3.15.2.dmg
 ```
 
 HMCL 本体基于 Java。这里的架构拆分主要是面向 macOS 用户的分发和元数据拆分：`aarch64` 面向 Apple Silicon Mac，`x64` 面向 Intel Mac。

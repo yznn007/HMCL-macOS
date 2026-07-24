@@ -14,7 +14,7 @@ HMCL lists multiple download locations, including the official website, GitHub R
 
 ## Channel Mapping
 
-HMCL-macOS maps its packaging channels to upstream GitHub Releases as follows:
+HMCL-macOS maps its internal packaging selectors to upstream GitHub Releases as follows:
 
 ```text
 stable -> latest non-prerelease GitHub Release
@@ -44,12 +44,13 @@ HMCL/src/main/resources/assets/img/icon-mac.png
 - `stable` is published as a normal GitHub Release in this repository.
 - `dev` is published as a prerelease.
 - Every newly built stable release is explicitly marked as this repository's GitHub Latest Release.
+- Public release tags use the upstream HMCL tag directly, without `stable` or `dev` prefixes.
 
-Each channel/version release contains separate macOS DMG assets for supported architectures:
+Each version release contains separate macOS DMG assets for supported architectures:
 
 ```text
-HMCL-macOS-<channel>-aarch64-<tag>.dmg
-HMCL-macOS-<channel>-x64-<tag>.dmg
+HMCL-macOS-aarch64-<tag>.dmg
+HMCL-macOS-x64-<tag>.dmg
 ```
 
 ## Licensing

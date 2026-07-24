@@ -36,7 +36,7 @@ Sign and notarize:
 ```bash
 ./scripts/sign-and-notarize.sh \
   --app dist/HMCL.app \
-  --dmg dist/HMCL-macOS-stable-aarch64-vX.Y.Z.dmg \
+  --dmg dist/HMCL-macOS-aarch64-vX.Y.Z.dmg \
   --identity "Developer ID Application: Your Name (TEAMID1234)" \
   --notary-profile HMCL_MACOS_NOTARY
 ```

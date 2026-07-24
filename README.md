@@ -8,12 +8,12 @@ HMCL-macOS packages the official HMCL `.jar` files into a standard macOS `.app`,
 
 ## Downloads
 
-Releases are built from upstream HMCL GitHub Releases and grouped into packaging channels:
+Releases are built from upstream HMCL GitHub Releases and use the same version tags as upstream:
 
-| Channel | Output | GitHub Release type |
+| Upstream release type | Output | GitHub Release type |
 | --- | --- | --- |
-| `stable` | `HMCL-macOS-stable-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-stable-x64-vX.Y.Z.dmg` | Release |
-| `dev` | `HMCL-macOS-dev-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-dev-x64-vX.Y.Z.dmg` | Prerelease |
+| non-prerelease | `HMCL-macOS-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-x64-vX.Y.Z.dmg` | Release |
+| prerelease | `HMCL-macOS-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-x64-vX.Y.Z.dmg` | Prerelease |
 
 Download the appropriate `.dmg` from this repository's Releases page.
 
@@ -72,7 +72,7 @@ Build a DMG for a specific packaging channel:
 The output is written to `dist/`:
 
 ```text
-dist/HMCL-macOS-<channel>-<arch>-<tag>.dmg
+dist/HMCL-macOS-<arch>-<tag>.dmg
 ```
 
 You can also run the steps separately:
@@ -80,7 +80,7 @@ You can also run the steps separately:
 ```bash
 ./scripts/download-hmcl-channel.sh --channel stable --output-dir downloads/stable/aarch64
 ./scripts/build-hmcl-app.sh downloads/stable/aarch64/HMCL-*.jar --version vX.Y.Z --arch aarch64 --output-dir dist/stable/aarch64
-./scripts/create-dmg.sh --app dist/stable/aarch64/HMCL.app --version stable-aarch64-vX.Y.Z --output-dir dist/stable/aarch64
+./scripts/create-dmg.sh --app dist/stable/aarch64/HMCL.app --version aarch64-vX.Y.Z --output-dir dist/stable/aarch64
 ```
 
 ## Icon
@@ -119,26 +119,26 @@ stable, dev
 aarch64, x64
 ```
 
-For each channel, it downloads the upstream GitHub release jar, verifies the checksum published in release notes when available, builds both architecture-specific `HMCL.app` bundles, creates `.dmg` assets, uploads the artifacts, and then either creates the channel/version GitHub Release or uploads the current DMG assets to the existing release. Stable releases are explicitly marked as GitHub's Latest Release; dev releases are explicitly kept out of latest by being published as prereleases.
+For each upstream release type, it downloads the upstream GitHub release jar, verifies the checksum published in release notes when available, builds both architecture-specific `HMCL.app` bundles, creates `.dmg` assets, uploads the artifacts, and then either creates the matching version GitHub Release or uploads the current DMG assets to the existing release. Non-prerelease builds are explicitly marked as GitHub's Latest Release; prerelease builds are published as GitHub prereleases and kept out of latest.
 
-Release tags use this format. Architecture is not part of the release tag; each release contains all architecture-specific DMG assets for that channel/version.
+Release tags use the upstream HMCL tag directly. Architecture is not part of the release tag; each release contains all architecture-specific DMG assets for that version.
 
 ```text
-hmcl-macos-<channel>-<tag>
+<tag>
 ```
 
 Examples:
 
 ```text
-hmcl-macos-stable-v3.15.2
-hmcl-macos-dev-v3.17.0.351
+v3.15.2
+v3.17.0.351
 ```
 
 Each release contains separate assets such as:
 
 ```text
-HMCL-macOS-stable-aarch64-v3.15.2.dmg
-HMCL-macOS-stable-x64-v3.15.2.dmg
+HMCL-macOS-aarch64-v3.15.2.dmg
+HMCL-macOS-x64-v3.15.2.dmg
 ```
 
 HMCL itself is Java-based. The architecture split is a distribution and metadata split for macOS users: `aarch64` targets Apple Silicon Macs, and `x64` targets Intel Macs.

@@ -47,7 +47,7 @@ jobs:
       - name: Upload dmg artifact
         uses: actions/upload-artifact@v4
         with:
-          name: HMCL-macOS-${{ matrix.channel }}-${{ steps.hmcl.outputs.tag }}
+          name: HMCL-macOS-${{ steps.hmcl.outputs.tag }}
           path: dist/${{ matrix.channel }}/*/HMCL-macOS-*.dmg
           if-no-files-found: error
 
@@ -55,7 +55,7 @@ jobs:
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: hmcl-macos-${{ matrix.channel }}-${{ steps.hmcl.outputs.tag }}
+          RELEASE_TAG: ${{ steps.hmcl.outputs.tag }}
         run: |
           echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
@@ -68,7 +68,7 @@ jobs:
         if: steps.release.outputs.exists == 'false'
         run: |
           cat > release-notes.md <<'NOTES'
-          This release packages the official ${{ matrix.channel }} HMCL jar as macOS `.app` bundles inside `.dmg` installer images.
+          This release packages the official HMCL jar as macOS `.app` bundles inside `.dmg` installer images.
 
           Install:
 
@@ -79,7 +79,7 @@ jobs:
           Notes:
 
           - HMCL itself is provided by the upstream HMCL project.
-          - Channel: ${{ matrix.channel }}
+          - Upstream release type: ${{ matrix.channel }}
           - Architectures: aarch64, x64
           - Download source: upstream HMCL GitHub Releases.
           - This repository only automates macOS App Bundle packaging.
@@ -102,7 +102,7 @@ jobs:
 
           gh release create "${{ steps.release.outputs.tag }}" \
             dist/${{ matrix.channel }}/*/HMCL-macOS-*.dmg \
-            --title "HMCL macOS ${{ matrix.channel }} ${{ steps.hmcl.outputs.tag }}" \
+            --title "HMCL macOS ${{ steps.hmcl.outputs.tag }}" \
             --notes-file release-notes.md \
             $prerelease_arg \
             $latest_arg
