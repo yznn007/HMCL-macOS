@@ -13,6 +13,7 @@ cask "hmcl-macos" do
     "~/.hmcl",
     "~/Library/Application Support/HMCL",
     "~/Library/Application Support/hmcl",
+    "~/Library/Caches/HMCL",
     "~/Library/Logs/HMCL-macOS",
   ]
 end

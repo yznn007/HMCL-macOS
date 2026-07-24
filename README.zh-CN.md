@@ -34,6 +34,7 @@ HMCL-macOS 会将 HMCL 官方 `.jar` 文件封装成标准 macOS `.app`，再打
 - 将 HMCL 固定存放为应用包内的 `Contents/Resources/HMCL.jar`。
 - 在应用包内记录上游版本和目标架构。
 - 将 HMCL 运行数据存放在 `~/Library/Application Support/HMCL`。
+- 将 HMCL 依赖缓存存放在 `~/Library/Caches/HMCL`。
 - 将应用包打包成带 `Applications` 快捷入口的 `.dmg`。
 - 使用 GitHub Actions 发布上游最新非 prerelease 构建。
 
@@ -56,6 +57,12 @@ HMCL.app
 
 ```text
 ~/Library/Logs/HMCL-macOS/hmcl-app-launcher.log
+```
+
+应用使用 reverse-DNS 格式的 Bundle ID：
+
+```text
+io.github.yznn007.hmcl-macos
 ```
 
 ## 本地构建

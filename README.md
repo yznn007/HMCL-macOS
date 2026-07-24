@@ -34,6 +34,7 @@ If macOS blocks the app because it is unsigned, open it from Finder with Control
 - Stores HMCL as `Contents/Resources/HMCL.jar` inside the app.
 - Records the upstream version and target architecture in the app bundle.
 - Stores HMCL runtime data in `~/Library/Application Support/HMCL`.
+- Stores HMCL dependency caches in `~/Library/Caches/HMCL`.
 - Packages the app as a `.dmg` with an `Applications` shortcut.
 - Publishes the latest upstream non-prerelease build with GitHub Actions.
 
@@ -56,6 +57,12 @@ Launcher logs are written to:
 
 ```text
 ~/Library/Logs/HMCL-macOS/hmcl-app-launcher.log
+```
+
+The app uses a reverse-DNS bundle identifier:
+
+```text
+io.github.yznn007.hmcl-macos
 ```
 
 ## Build Locally

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 APP_NAME="HMCL"
-BUNDLE_ID="local.hmcl.launcher"
+BUNDLE_ID="io.github.yznn007.hmcl-macos"
 VERSION="1.0.0"
 OUTPUT_DIR="dist"
 ARCH="universal"
@@ -125,6 +125,7 @@ if [ -z "$USER_HOME" ] && [ -n "${USER:-}" ]; then
 fi
 
 APP_SUPPORT_DIR="$USER_HOME/Library/Application Support/HMCL"
+CACHE_DIR="$USER_HOME/Library/Caches/HMCL"
 LOG_DIR="$USER_HOME/Library/Logs/HMCL-macOS"
 LOG_FILE="$LOG_DIR/hmcl-app-launcher.log"
 
@@ -137,7 +138,7 @@ if [ -z "$USER_HOME" ] || [ ! -d "$USER_HOME" ]; then
   exit 1
 fi
 
-mkdir -p "$APP_SUPPORT_DIR" "$LOG_DIR"
+mkdir -p "$APP_SUPPORT_DIR" "$CACHE_DIR" "$LOG_DIR"
 exec >>"$LOG_FILE" 2>&1
 echo "[$(/bin/date '+%Y-%m-%d %H:%M:%S')] Starting HMCL.app"
 
@@ -164,6 +165,7 @@ exec "$JAVA" $JAVA_OPTS \
   -Duser.home="$USER_HOME" \
   -Dhmcl.dir="$APP_SUPPORT_DIR" \
   -Dhmcl.home="$APP_SUPPORT_DIR" \
+  -Dhmcl.dependencies.dir="$CACHE_DIR/dependencies" \
   -jar "$HMCL_JAR"
 LAUNCHER
 
