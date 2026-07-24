@@ -14,7 +14,6 @@ Releases are built from upstream HMCL GitHub Releases and grouped into packaging
 | --- | --- | --- |
 | `stable` | `HMCL-macOS-stable-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-stable-x64-vX.Y.Z.dmg` | Release |
 | `dev` | `HMCL-macOS-dev-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-dev-x64-vX.Y.Z.dmg` | Prerelease |
-| `old` | `HMCL-macOS-old-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-old-x64-vX.Y.Z.dmg` | Prerelease |
 
 Download the appropriate `.dmg` from this repository's Releases page.
 
@@ -36,7 +35,7 @@ If macOS blocks the app because it is unsigned, open it from Finder with Control
 - Stores HMCL as `Contents/Resources/HMCL.jar` inside the app.
 - Records the upstream version, channel, and target architecture in the app bundle.
 - Packages the app as a `.dmg` with an `Applications` shortcut.
-- Publishes `stable`, `dev`, and `old` channel builds with GitHub Actions.
+- Publishes `stable` and `dev` channel builds with GitHub Actions.
 
 ## App Bundle Layout
 
@@ -68,7 +67,6 @@ Build a DMG for a specific packaging channel:
 ./scripts/build-channel-dmg.sh --channel stable --arch aarch64
 ./scripts/build-channel-dmg.sh --channel stable --arch x64
 ./scripts/build-channel-dmg.sh --channel dev --arch aarch64
-./scripts/build-channel-dmg.sh --channel old --arch x64
 ```
 
 The output is written to `dist/`:
@@ -117,11 +115,11 @@ The release workflow is defined in:
 It runs on a schedule and can also be triggered manually. The workflow builds a matrix of packaging channels and macOS architectures:
 
 ```text
-stable, dev, old
+stable, dev
 aarch64, x64
 ```
 
-For each channel, it downloads the upstream GitHub release jar, verifies the checksum published in release notes when available, builds both architecture-specific `HMCL.app` bundles, creates `.dmg` assets, uploads the artifacts, and then either creates the channel/version GitHub Release or uploads the current DMG assets to the existing release. Stable releases are explicitly marked as GitHub's Latest Release; dev and old releases are explicitly kept out of latest by being published as prereleases.
+For each channel, it downloads the upstream GitHub release jar, verifies the checksum published in release notes when available, builds both architecture-specific `HMCL.app` bundles, creates `.dmg` assets, uploads the artifacts, and then either creates the channel/version GitHub Release or uploads the current DMG assets to the existing release. Stable releases are explicitly marked as GitHub's Latest Release; dev releases are explicitly kept out of latest by being published as prereleases.
 
 Release tags use this format. Architecture is not part of the release tag; each release contains all architecture-specific DMG assets for that channel/version.
 
@@ -134,7 +132,6 @@ Examples:
 ```text
 hmcl-macos-stable-v3.15.2
 hmcl-macos-dev-v3.17.0.351
-hmcl-macos-old-v3.6.20
 ```
 
 Each release contains separate assets such as:
@@ -155,7 +152,6 @@ Channel mapping:
 ```text
 stable -> latest non-prerelease GitHub Release
 dev    -> latest prerelease GitHub Release
-old    -> latest non-prerelease GitHub Release from the 3.6 line
 ```
 
 See [UPSTREAM.md](UPSTREAM.md) for details.

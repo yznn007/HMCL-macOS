@@ -8,7 +8,7 @@ OUTPUT_DIR="dist"
 DOWNLOAD_DIR="downloads"
 
 usage() {
-  printf 'Usage: %s [--channel stable|dev|old] [--arch aarch64|x64|universal] [--output-dir DIR] [--download-dir DIR]\n' "$0"
+  printf 'Usage: %s [--channel stable|dev] [--arch aarch64|x64|universal] [--output-dir DIR] [--download-dir DIR]\n' "$0"
 }
 
 while [ "$#" -gt 0 ]; do

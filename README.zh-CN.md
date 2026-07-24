@@ -14,7 +14,6 @@ HMCL-macOS 会将 HMCL 官方 `.jar` 文件封装成标准 macOS `.app`，再打
 | --- | --- | --- |
 | `stable` | `HMCL-macOS-stable-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-stable-x64-vX.Y.Z.dmg` | 正式 Release |
 | `dev` | `HMCL-macOS-dev-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-dev-x64-vX.Y.Z.dmg` | Prerelease |
-| `old` | `HMCL-macOS-old-aarch64-vX.Y.Z.dmg` / `HMCL-macOS-old-x64-vX.Y.Z.dmg` | Prerelease |
 
 请在本仓库的 Releases 页面下载需要的 `.dmg`。
 
@@ -36,7 +35,7 @@ HMCL-macOS 会将 HMCL 官方 `.jar` 文件封装成标准 macOS `.app`，再打
 - 将 HMCL 固定存放为应用包内的 `Contents/Resources/HMCL.jar`。
 - 在应用包内记录上游版本、打包通道和目标架构。
 - 将应用包打包成带 `Applications` 快捷入口的 `.dmg`。
-- 使用 GitHub Actions 发布 `stable`、`dev`、`old` 三个打包通道构建。
+- 使用 GitHub Actions 发布 `stable` 和 `dev` 两个打包通道构建。
 
 ## App Bundle 结构
 
@@ -68,7 +67,6 @@ HMCL.app
 ./scripts/build-channel-dmg.sh --channel stable --arch aarch64
 ./scripts/build-channel-dmg.sh --channel stable --arch x64
 ./scripts/build-channel-dmg.sh --channel dev --arch aarch64
-./scripts/build-channel-dmg.sh --channel old --arch x64
 ```
 
 产物会输出到 `dist/`：
@@ -117,11 +115,11 @@ assets/icons/AppIcon.icns
 它会定时运行，也可以手动触发。工作流使用 matrix 构建打包通道和 macOS 架构：
 
 ```text
-stable, dev, old
+stable, dev
 aarch64, x64
 ```
 
-每个通道都会从上游 GitHub Releases 下载 jar，在 release notes 提供 SHA-256 时进行校验，分别构建各架构的 `HMCL.app`、生成 `.dmg`、上传 artifact，然后在对应通道和版本尚未发布时创建 GitHub Release；如果 Release 已存在，则把当前 DMG 资产上传并覆盖到该 Release。稳定版会被明确标记为 GitHub Latest Release；开发版和旧版会作为 prerelease 发布，不会成为 latest。
+每个通道都会从上游 GitHub Releases 下载 jar，在 release notes 提供 SHA-256 时进行校验，分别构建各架构的 `HMCL.app`、生成 `.dmg`、上传 artifact，然后在对应通道和版本尚未发布时创建 GitHub Release；如果 Release 已存在，则把当前 DMG 资产上传并覆盖到该 Release。稳定版会被明确标记为 GitHub Latest Release；开发版会作为 prerelease 发布，不会成为 latest。
 
 Release tag 格式如下。架构不写入 Release tag；同一个通道和版本的 Release 中会包含所有架构对应的 DMG 资产。
 
@@ -134,7 +132,6 @@ hmcl-macos-<channel>-<tag>
 ```text
 hmcl-macos-stable-v3.15.2
 hmcl-macos-dev-v3.17.0.351
-hmcl-macos-old-v3.6.20
 ```
 
 每个 Release 中会包含类似这样的架构资产：
@@ -155,7 +152,6 @@ HMCL 本体基于 Java。这里的架构拆分主要是面向 macOS 用户的分
 ```text
 stable -> 最新的非 prerelease GitHub Release
 dev    -> 最新的 prerelease GitHub Release
-old    -> 最新的 3.6 系列非 prerelease GitHub Release
 ```
 
 详见 [UPSTREAM.md](UPSTREAM.md)。

@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        channel: [stable, dev, old]
+        channel: [stable, dev]
 
     steps:
       - name: Checkout

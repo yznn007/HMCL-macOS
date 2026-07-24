@@ -19,10 +19,9 @@ HMCL-macOS maps its packaging channels to upstream GitHub Releases as follows:
 ```text
 stable -> latest non-prerelease GitHub Release
 dev    -> latest prerelease GitHub Release
-old    -> latest non-prerelease GitHub Release from the 3.6 line
 ```
 
-The project does not use GitHub's `latest` endpoint directly because it only represents GitHub's latest non-prerelease release and does not cover the `dev` or `old` packaging channels.
+The project does not use GitHub's `latest` endpoint directly because it only represents GitHub's latest non-prerelease release and does not cover the `dev` packaging channel.
 
 ## Assets
 
@@ -44,7 +43,6 @@ HMCL/src/main/resources/assets/img/icon-mac.png
 
 - `stable` is published as a normal GitHub Release in this repository.
 - `dev` is published as a prerelease.
-- `old` is published as a prerelease to avoid replacing the main stable release in GitHub's release UI.
 - Every newly built stable release is explicitly marked as this repository's GitHub Latest Release.
 
 Each channel/version release contains separate macOS DMG assets for supported architectures:
