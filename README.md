@@ -119,7 +119,7 @@ stable, dev
 aarch64, x64
 ```
 
-For each upstream release type, it downloads the upstream GitHub release jar, verifies the checksum published in release notes when available, builds both architecture-specific `HMCL.app` bundles, creates `.dmg` assets, uploads the artifacts, and then either creates the matching version GitHub Release or uploads the current DMG assets to the existing release. Non-prerelease builds are explicitly marked as GitHub's Latest Release; prerelease builds are published as GitHub prereleases and kept out of latest.
+For each upstream release type, it downloads the upstream GitHub release jar, verifies the checksum published in release notes when available, builds both architecture-specific `HMCL.app` bundles, creates `.dmg` assets, uploads the artifacts, and then either creates the matching version GitHub Release or uploads the current DMG assets to the existing release. Every run explicitly syncs the GitHub Release state: upstream non-prerelease builds are normal releases and become Latest; upstream prerelease builds are prereleases and are kept out of Latest.
 
 Release tags use the upstream HMCL tag directly. Architecture is not part of the release tag; each release contains all architecture-specific DMG assets for that version.
 

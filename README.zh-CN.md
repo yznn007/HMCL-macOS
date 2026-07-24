@@ -119,7 +119,7 @@ stable, dev
 aarch64, x64
 ```
 
-每种上游 Release 类型都会从上游 GitHub Releases 下载 jar，在 release notes 提供 SHA-256 时进行校验，分别构建各架构的 `HMCL.app`、生成 `.dmg`、上传 artifact，然后在对应版本尚未发布时创建 GitHub Release；如果 Release 已存在，则把当前 DMG 资产上传并覆盖到该 Release。非 prerelease 构建会被明确标记为 GitHub Latest Release；prerelease 构建会作为 GitHub prerelease 发布，不会成为 latest。
+每种上游 Release 类型都会从上游 GitHub Releases 下载 jar，在 release notes 提供 SHA-256 时进行校验，分别构建各架构的 `HMCL.app`、生成 `.dmg`、上传 artifact，然后在对应版本尚未发布时创建 GitHub Release；如果 Release 已存在，则把当前 DMG 资产上传并覆盖到该 Release。每次运行都会显式同步 GitHub Release 状态：上游非 prerelease 构建会作为普通 Release 并成为 Latest；上游 prerelease 构建会作为 Prerelease，并且不会成为 Latest。
 
 Release tag 直接使用上游 HMCL tag。架构不写入 Release tag；同一个版本的 Release 中会包含所有架构对应的 DMG 资产。
 

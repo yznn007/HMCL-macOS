@@ -43,7 +43,7 @@ HMCL/src/main/resources/assets/img/icon-mac.png
 
 - `stable` is published as a normal GitHub Release in this repository.
 - `dev` is published as a prerelease.
-- Every newly built stable release is explicitly marked as this repository's GitHub Latest Release.
+- Every run explicitly syncs the repository release state with upstream: `stable` is set to `prerelease=false` and `make_latest=true`; `dev` is set to `prerelease=true` and `make_latest=false`.
 - Public release tags use the upstream HMCL tag directly, without `stable` or `dev` prefixes.
 
 Each version release contains separate macOS DMG assets for supported architectures:
